@@ -2,7 +2,6 @@
 Tests for Scaling Policies.
 """
 
-import pytest
 
 from policies import ReactivePolicy, PredictivePolicy, HybridPolicy
 
