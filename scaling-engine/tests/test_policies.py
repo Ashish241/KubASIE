@@ -3,9 +3,8 @@ Tests for Scaling Policies.
 """
 
 import pytest
-from datetime import datetime, timezone
 
-from policies import ReactivePolicy, PredictivePolicy, HybridPolicy, ScalingDecision
+from policies import ReactivePolicy, PredictivePolicy, HybridPolicy
 
 
 class TestReactivePolicy:

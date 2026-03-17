@@ -3,8 +3,7 @@ Tests for Metrics Collector.
 """
 
 import pytest
-from unittest.mock import MagicMock, patch
-from datetime import datetime, timezone
+from unittest.mock import patch
 
 from collector import MetricsCollector
 from config import Config

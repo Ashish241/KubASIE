@@ -3,7 +3,7 @@ Cost Optimizer — Tracks infrastructure cost savings from intelligent scaling.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Dict, List
 
 logger = logging.getLogger("scaling-engine.cost")

@@ -4,7 +4,6 @@ Tests for Scaling Engine core loop.
 
 import pytest
 from unittest.mock import patch, MagicMock
-from datetime import datetime, timezone
 
 from engine import ScalingEngine
 from engine_config import EngineConfig

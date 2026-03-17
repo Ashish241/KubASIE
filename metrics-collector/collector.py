@@ -8,7 +8,6 @@ and stores them in InfluxDB for historical analysis and ML training.
 import time
 import logging
 import signal
-import sys
 from datetime import datetime, timezone
 
 from config import Config

@@ -2,7 +2,6 @@
 Tests for prediction service.
 """
 
-import pytest
 from unittest.mock import patch, MagicMock
 
 from predict import PredictionService

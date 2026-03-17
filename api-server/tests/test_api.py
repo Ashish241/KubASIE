@@ -4,7 +4,7 @@ API Server Tests — Test all endpoints using httpx.
 
 import pytest
 import pytest_asyncio
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, patch
 from httpx import AsyncClient, ASGITransport, Response
 from main import app
 

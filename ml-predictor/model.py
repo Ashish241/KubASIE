@@ -4,7 +4,7 @@ Model Definitions — Prophet and LSTM models for traffic prediction.
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -141,7 +141,6 @@ class LSTMPredictor(BasePredictor):
 
     def _build_model(self):
         """Build the PyTorch LSTM network."""
-        import torch
         import torch.nn as nn
 
         class LSTMNetwork(nn.Module):

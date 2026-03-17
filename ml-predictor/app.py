@@ -10,8 +10,6 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from predict import PredictionService
-from train import train_prophet, train_lstm
-from preprocess import DataPreprocessor
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("ml-predictor-service")

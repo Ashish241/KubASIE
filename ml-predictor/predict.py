@@ -6,7 +6,6 @@ import logging
 from pathlib import Path
 from typing import Dict, Optional
 
-import pandas as pd
 import numpy as np
 
 from model import ProphetPredictor, LSTMPredictor

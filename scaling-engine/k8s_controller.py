@@ -102,8 +102,6 @@ class K8sController:
             return False
 
         try:
-            from kubernetes import client
-
             patch_body = {
                 "spec": {
                     "minReplicas": min_replicas,

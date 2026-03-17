@@ -110,7 +110,7 @@ def simulate_traffic():
 
 
 @app.route("/metrics")
-def metrics():
+def prometheus_metrics():
     """Expose Prometheus metrics endpoint."""
     return generate_latest(), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 

@@ -3,7 +3,7 @@ Scaling Policies — Reactive, predictive, and hybrid scaling strategies.
 """
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, Optional
 from datetime import datetime, timezone
 

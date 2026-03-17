@@ -2,9 +2,6 @@
 Tests for K8s Controller.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-
 from k8s_controller import K8sController
 
 
