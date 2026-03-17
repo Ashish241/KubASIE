@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: target-app
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "autoscale-engine.componentLabels" (dict "component" "target-app" "root" .) | nindent 4 }}
+spec:
+  replicas: {{ .Values.targetApp.replicas }}
+  selector:
+    matchLabels:
+      app: target-app
+  template:
+    metadata:
+      labels:
+        app: target-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.targetApp.port }}"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: target-app
+          image: {{ .Values.targetApp.image }}
+          imagePullPolicy: {{ .Values.targetApp.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.targetApp.port }}
+              name: http
+          resources:
+            {{- toYaml .Values.targetApp.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.targetApp.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.targetApp.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: target-app-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "autoscale-engine.componentLabels" (dict "component" "target-app" "root" .) | nindent 4 }}
+spec:
+  ports:
+    - port: {{ .Values.targetApp.port }}
+      targetPort: {{ .Values.targetApp.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app: target-app
+  type: ClusterIP
+{{- if .Values.targetApp.hpa.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: target-app-hpa
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "autoscale-engine.componentLabels" (dict "component" "target-app" "root" .) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: target-app
+  minReplicas: {{ .Values.targetApp.hpa.minReplicas }}
+  maxReplicas: {{ .Values.targetApp.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.targetApp.hpa.targetCpuPercent }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 120
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+{{- end }}

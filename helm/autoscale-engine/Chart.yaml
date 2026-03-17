@@ -1,0 +1,16 @@
+apiVersion: v2
+name: autoscale-engine
+description: Kubernetes Auto-Scaling Intelligence Engine — Helm Chart
+version: 1.0.0
+appVersion: "1.0.0"
+type: application
+
+keywords:
+  - kubernetes
+  - autoscaling
+  - machine-learning
+  - prophet
+  - lstm
+
+maintainers:
+  - name: Ashis

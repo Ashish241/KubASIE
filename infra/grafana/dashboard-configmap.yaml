@@ -1,0 +1,16 @@
+# This ConfigMap is generated from the dashboard JSON.
+# The deploy.sh script creates this automatically with:
+#   kubectl create configmap grafana-dashboards \
+#     --from-file=autoscaler-overview.json=infra/grafana/dashboards/autoscaler-overview.json \
+#     -n autoscaler --dry-run=client -o yaml | kubectl apply -f -
+#
+# If you prefer to apply it manually, uncomment and apply the block below:
+#
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: grafana-dashboards
+#   namespace: autoscaler
+# data:
+#   autoscaler-overview.json: |
+#     <paste contents of dashboards/autoscaler-overview.json here>

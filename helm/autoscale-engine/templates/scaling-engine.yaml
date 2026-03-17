@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scaling-engine
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "autoscale-engine.componentLabels" (dict "component" "scaling-engine" "root" .) | nindent 4 }}
+spec:
+  replicas: {{ .Values.scalingEngine.replicas }}
+  selector:
+    matchLabels:
+      app: scaling-engine
+  template:
+    metadata:
+      labels:
+        app: scaling-engine
+    spec:
+      containers:
+        - name: scaling-engine
+          image: {{ .Values.scalingEngine.image }}
+          imagePullPolicy: {{ .Values.scalingEngine.imagePullPolicy }}
+          env:
+            - name: API_SERVER_URL
+              value: "http://api-server-service:{{ .Values.apiServer.port }}"
+          resources:
+            {{- toYaml .Values.scalingEngine.resources | nindent 12 }}

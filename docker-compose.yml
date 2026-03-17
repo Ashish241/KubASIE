@@ -1,0 +1,194 @@
+# ======================================================================
+# Kubernetes Auto-Scaling Intelligence Engine
+# Docker Compose — Local Development Environment
+# ======================================================================
+
+version: "3.9"
+
+services:
+  # ── Target Application ──────────────────────────────────────────
+  target-app:
+    build: ./target-app
+    container_name: target-app
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - autoscaler-net
+
+  # ── Prometheus ──────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus/prometheus-local.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - autoscaler-net
+
+  # ── InfluxDB ────────────────────────────────────────────────────
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=autoscaler-password
+      - DOCKER_INFLUXDB_INIT_ORG=autoscaler
+      - DOCKER_INFLUXDB_INIT_BUCKET=metrics
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=autoscaler-token
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - autoscaler-net
+
+  # ── Metrics Collector ───────────────────────────────────────────
+  metrics-collector:
+    build: ./metrics-collector
+    container_name: metrics-collector
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    environment:
+      - PROMETHEUS_URL=http://prometheus:9090
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=autoscaler-token
+      - INFLUXDB_ORG=autoscaler
+      - INFLUXDB_BUCKET=metrics
+      - COLLECTION_INTERVAL=30
+    networks:
+      - autoscaler-net
+
+  # ── ML Predictor ────────────────────────────────────────────────
+  ml-predictor:
+    build: ./ml-predictor
+    container_name: ml-predictor
+    ports:
+      - "8001:8000"
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=autoscaler-token
+      - INFLUXDB_ORG=autoscaler
+      - INFLUXDB_BUCKET=metrics
+    volumes:
+      - ml-models:/app/models
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    networks:
+      - autoscaler-net
+
+  # ── API Server ─────────────────────────────────────────────────
+  api-server:
+    build: ./api-server
+    container_name: api-server
+    ports:
+      - "8000:8000"
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=autoscaler-token
+      - ML_PREDICTOR_URL=http://ml-predictor:8000
+    depends_on:
+      ml-predictor:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - autoscaler-net
+
+  # ── Scaling Engine ─────────────────────────────────────────────
+  scaling-engine:
+    build: ./scaling-engine
+    container_name: scaling-engine
+    depends_on:
+      api-server:
+        condition: service_healthy
+    environment:
+      - API_SERVER_URL=http://api-server:8000
+      - DRY_RUN=true
+      - LOOP_INTERVAL=60
+    networks:
+      - autoscaler-net
+
+  # ── Grafana (Optional Visualization) ────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    volumes:
+      - grafana-data:/var/lib/grafana
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    networks:
+      - autoscaler-net
+
+  # ── Dashboard ──────────────────────────────────────────────────
+  dashboard:
+    build: ./dashboard
+    container_name: dashboard
+    ports:
+      - "3000:80"
+    depends_on:
+      api-server:
+        condition: service_healthy
+    networks:
+      - autoscaler-net
+
+volumes:
+  prometheus-data:
+  influxdb-data:
+  grafana-data:
+  ml-models:
+
+networks:
+  autoscaler-net:
+    driver: bridge

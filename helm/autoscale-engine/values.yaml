@@ -1,0 +1,104 @@
+# ======================================================================
+# K8s Auto-Scaling Intelligence Engine — Default Values
+# ======================================================================
+
+namespace: autoscaler
+
+# ── Target Application ───────────────────────────────────────────
+targetApp:
+  replicas: 2
+  image: target-app:latest
+  imagePullPolicy: IfNotPresent
+  port: 5000
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
+  hpa:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 10
+    targetCpuPercent: 50
+
+# ── API Server ───────────────────────────────────────────────────
+apiServer:
+  replicas: 1
+  image: api-server:latest
+  imagePullPolicy: IfNotPresent
+  port: 8000
+  service:
+    type: NodePort
+    nodePort: 30080
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+
+# ── ML Predictor ─────────────────────────────────────────────────
+mlPredictor:
+  replicas: 1
+  image: ml-predictor:latest
+  imagePullPolicy: IfNotPresent
+  port: 8000
+  service:
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+
+# ── Scaling Engine ───────────────────────────────────────────────
+scalingEngine:
+  replicas: 1
+  image: scaling-engine:latest
+  imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+
+# ── Metrics Collector ────────────────────────────────────────────
+metricsCollector:
+  replicas: 1
+  image: metrics-collector:latest
+  imagePullPolicy: IfNotPresent
+  env:
+    prometheusUrl: "http://prometheus-service:9090"
+    influxdbUrl: "http://influxdb-service:8086"
+    collectionInterval: "30"
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+
+# ── Dashboard ────────────────────────────────────────────────────
+dashboard:
+  replicas: 1
+  image: dashboard:latest
+  imagePullPolicy: IfNotPresent
+  port: 80
+  service:
+    type: NodePort
+    nodePort: 30081
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "100m"
+      memory: "128Mi"

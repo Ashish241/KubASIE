@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics-collector
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "autoscale-engine.componentLabels" (dict "component" "metrics-collector" "root" .) | nindent 4 }}
+spec:
+  replicas: {{ .Values.metricsCollector.replicas }}
+  selector:
+    matchLabels:
+      app: metrics-collector
+  template:
+    metadata:
+      labels:
+        app: metrics-collector
+    spec:
+      containers:
+        - name: metrics-collector
+          image: {{ .Values.metricsCollector.image }}
+          imagePullPolicy: {{ .Values.metricsCollector.imagePullPolicy }}
+          env:
+            - name: PROMETHEUS_URL
+              value: {{ .Values.metricsCollector.env.prometheusUrl | quote }}
+            - name: INFLUXDB_URL
+              value: {{ .Values.metricsCollector.env.influxdbUrl | quote }}
+            - name: COLLECTION_INTERVAL
+              value: {{ .Values.metricsCollector.env.collectionInterval | quote }}
+          resources:
+            {{- toYaml .Values.metricsCollector.resources | nindent 12 }}

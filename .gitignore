@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# ML Models (track with Git LFS or DVC, not Git)
+ml-predictor/models/*.pkl
+ml-predictor/models/*.pt
+ml-predictor/models/*_scaler.pkl
+ml-predictor/models/*_report.json
+!ml-predictor/models/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+
+# Node (dashboard)
+dashboard/node_modules/
+dashboard/dist/
+
+# Secrets — NEVER commit
+*.env
+.env.*
+secrets/

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-predictor
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "autoscale-engine.componentLabels" (dict "component" "ml-predictor" "root" .) | nindent 4 }}
+spec:
+  replicas: {{ .Values.mlPredictor.replicas }}
+  selector:
+    matchLabels:
+      app: ml-predictor
+  template:
+    metadata:
+      labels:
+        app: ml-predictor
+    spec:
+      containers:
+        - name: ml-predictor
+          image: {{ .Values.mlPredictor.image }}
+          imagePullPolicy: {{ .Values.mlPredictor.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.mlPredictor.port }}
+              name: http
+          resources:
+            {{- toYaml .Values.mlPredictor.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.mlPredictor.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-predictor-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "autoscale-engine.componentLabels" (dict "component" "ml-predictor" "root" .) | nindent 4 }}
+spec:
+  ports:
+    - port: {{ .Values.mlPredictor.port }}
+      targetPort: {{ .Values.mlPredictor.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app: ml-predictor
+  type: {{ .Values.mlPredictor.service.type }}

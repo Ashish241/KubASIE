@@ -1,0 +1,11 @@
+numpy==2.2.3
+pandas==2.2.3
+scikit-learn==1.6.1
+prophet==1.1.6
+cmdstanpy==1.1.0
+stanio==0.5.1
+influxdb-client==1.46.0
+requests==2.32.3
+matplotlib==3.10.1
+fastapi==0.110.0
+uvicorn==0.29.0
