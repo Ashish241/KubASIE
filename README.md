@@ -1,11 +1,27 @@
 # 🚀 Kubernetes Auto-Scaling Intelligence Engine
 
-[![CI](https://github.com/YOUR_USERNAME/k8s-autoscaling-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/k8s-autoscaling-engine/actions)
+[![CI](https://github.com/Ashish241/KubASIE/actions/workflows/ci.yml/badge.svg)](https://github.com/Ashish241/KubASIE/actions)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://python.org)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.28+-blue.svg)](https://kubernetes.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 An intelligent auto-scaling system that **predicts traffic patterns** using Machine Learning, **dynamically adjusts Kubernetes HPA scaling rules**, and **reduces infrastructure costs** while maintaining SLA guarantees.
+
+<div align="center">
+  <img src="docs/images/Dashboard-Overview.png" alt="KubASIE Dashboard Overview" width="100%"/>
+</div>
+
+### 🔮 Machine Learning Predictions
+KubASIE uses advanced time-series forecasting (Prophet & LSTM) to predict future resource spikes before they happen.
+<div align="center">
+  <img src="docs/images/Traffic-predictions.png" alt="ML Predictions Chart" width="100%"/>
+</div>
+
+### 💰 Cost & Resource Optimization
+Track your compute savings and exact scaling decisions dynamically.
+<div align="center">
+  <img src="docs/images/Cost-Analysis.png" alt="Cost Savings Dashboard" width="100%"/>
+</div>
 
 ## ✨ Key Features
 
@@ -23,10 +39,10 @@ An intelligent auto-scaling system that **predicts traffic patterns** using Mach
 ## 🏗️ Architecture
 
 ```
-┌──────────────┐     ┌──────────────┐     ┌──────────────────┐
+┌──────────────┐     ┌──────────────┐      ┌──────────────────┐
 │  Target App  │────▶│  Prometheus  │────▶│ Metrics Collector│
-│  (Flask)     │     │              │     │ (→ InfluxDB)     │
-└──────┬───────┘     └──────────────┘     └────────┬─────────┘
+│  (Flask)     │     │              │      │ (→ InfluxDB)     │
+└──────┬───────┘     └──────────────┘      └────────┬─────────┘
        │                                           │
        │  ┌──────────────────────────────────────┐ │
        │  │         ML Predictor                 │ │
@@ -40,10 +56,10 @@ An intelligent auto-scaling system that **predicts traffic patterns** using Mach
        │  └────────────────┬─────────────────────┘
        │                   │
        ▼                   ▼
-  ┌─────────┐      ┌─────────────┐      ┌──────────┐
-  │ K8s HPA │◀─────│  REST API   │◀─────│Dashboard │
-  │ (Patched│      │  (FastAPI)  │      │ (React)  │
-  └─────────┘      └─────────────┘      └──────────┘
+  ┌─────────┐      ┌─────────────┐       ┌──────────┐
+  │ K8s HPA │◀─────│  REST API   │◀─────│ Dashboard│
+  │(Patched)│      │  (FastAPI)  │       │ (React)  │
+  └─────────┘      └─────────────┘       └──────────┘
 ```
 
 ## 📁 Project Structure
@@ -79,7 +95,7 @@ An intelligent auto-scaling system that **predicts traffic patterns** using Mach
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/k8s-autoscaling-engine.git
+git clone https://github.com/Ashish241/KubASIE.git
 cd k8s-autoscaling-engine
 
 # 2. Build and start all services (first build takes ~10 min for ML dependencies)
@@ -331,7 +347,3 @@ Configurable via `values.yaml`: image tags, replica counts, resource limits, ser
 ## 📄 License
 
 MIT License — see [LICENSE](LICENSE) for details.
-
-## 👤 Author
-
-**Ashis** — B.Tech CSE Final Year Project
